@@ -24,14 +24,18 @@ type Method struct {
 //    buf, _ := xml.Marshal(f)
 //    buf, _ = Sign(key, buf)
 //
+type Reference struct {
+	XMLName      xml.Name `xml:"http://www.w3.org/2000/09/xmldsig# Reference"`
+	Transforms   []Method `xml:"Transforms>Transform"`
+	DigestMethod Method   `xml:"DigestMethod"`
+	DigestValue  string   `xml:"DigestValue"`
+}
 type Signature struct {
 	XMLName xml.Name `xml:"http://www.w3.org/2000/09/xmldsig# Signature"`
 
 	CanonicalizationMethod Method             `xml:"SignedInfo>CanonicalizationMethod"`
 	SignatureMethod        Method             `xml:"SignedInfo>SignatureMethod"`
-	ReferenceTransforms    []Method           `xml:"SignedInfo>Reference>Transforms>Transform"`
-	DigestMethod           Method             `xml:"SignedInfo>Reference>DigestMethod"`
-	DigestValue            string             `xml:"SignedInfo>Reference>DigestValue"`
+	Reference              Reference          `xml:"http://www.w3.org/2000/09/xmldsig# Reference"`
 	SignatureValue         string             `xml:"SignatureValue"`
 	KeyName                string             `xml:"KeyInfo>KeyName,omitempty"`
 	X509Certificate        *SignatureX509Data `xml:"KeyInfo>X509Data,omitempty"`
@@ -56,11 +60,13 @@ func DefaultSignature(pemEncodedPublicKey []byte) Signature {
 		SignatureMethod: Method{
 			Algorithm: "http://www.w3.org/2000/09/xmldsig#rsa-sha1",
 		},
-		ReferenceTransforms: []Method{
-			Method{Algorithm: "http://www.w3.org/2000/09/xmldsig#enveloped-signature"},
-		},
-		DigestMethod: Method{
-			Algorithm: "http://www.w3.org/2000/09/xmldsig#sha1",
+		Reference: Reference{
+			Transforms: []Method{
+				Method{Algorithm: "http://www.w3.org/2000/09/xmldsig#enveloped-signature"},
+			},
+			DigestMethod: Method{
+				Algorithm: "http://www.w3.org/2000/09/xmldsig#sha1",
+			},
 		},
 		X509Certificate: &SignatureX509Data{
 			X509Certificate: certStr,
