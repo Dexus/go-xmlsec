@@ -25,21 +25,22 @@ type Method struct {
 //    buf, _ = Sign(key, buf)
 //
 type Reference struct {
-	XMLName      xml.Name `xml:"http://www.w3.org/2000/09/xmldsig# Reference"`
 	URI          string   `xml:",attr"`
 	Transforms   []Method `xml:"Transforms>Transform"`
-	DigestMethod Method   `xml:"DigestMethod"`
-	DigestValue  string   `xml:"DigestValue"`
+	DigestMethod Method
+	DigestValue  string
+}
+type SignedInfo struct {
+	CanonicalizationMethod Method `xml:"CanonicalizationMethod"`
+	SignatureMethod        Method `xml:"SignatureMethod"`
+	Reference              Reference
 }
 type Signature struct {
-	XMLName xml.Name `xml:"http://www.w3.org/2000/09/xmldsig# Signature"`
-
-	CanonicalizationMethod Method             `xml:"SignedInfo>CanonicalizationMethod"`
-	SignatureMethod        Method             `xml:"SignedInfo>SignatureMethod"`
-	Reference              Reference          `xml:"http://www.w3.org/2000/09/xmldsig# Reference"`
-	SignatureValue         string             `xml:"SignatureValue"`
-	KeyName                string             `xml:"KeyInfo>KeyName,omitempty"`
-	X509Certificate        *SignatureX509Data `xml:"KeyInfo>X509Data,omitempty"`
+	XMLName         xml.Name `xml:"http://www.w3.org/2000/09/xmldsig# Signature"`
+	SignedInfo      SignedInfo
+	SignatureValue  string             `xml:"SignatureValue"`
+	KeyName         string             `xml:"KeyInfo>KeyName,omitempty"`
+	X509Certificate *SignatureX509Data `xml:"KeyInfo>X509Data,omitempty"`
 }
 
 // SignatureX509Data represents the <X509Data> element of <Signature>
@@ -55,19 +56,20 @@ func DefaultSignature(pemEncodedPublicKey []byte) Signature {
 	certStr := base64.StdEncoding.EncodeToString(pemBlock.Bytes)
 
 	return Signature{
-		CanonicalizationMethod: Method{
-			Algorithm: "http://www.w3.org/TR/2001/REC-xml-c14n-20010315",
-		},
-		SignatureMethod: Method{
-			Algorithm: "http://www.w3.org/2000/09/xmldsig#rsa-sha1",
-		},
-		Reference: Reference{
-			URI: "#pfxd0b69e8d-7ef1-bc79-e854-76787764d7ee",
-			Transforms: []Method{
-				Method{Algorithm: "http://www.w3.org/2000/09/xmldsig#enveloped-signature"},
+		SignedInfo: SignedInfo{
+			CanonicalizationMethod: Method{
+				Algorithm: "http://www.w3.org/TR/2001/REC-xml-c14n-20010315",
 			},
-			DigestMethod: Method{
-				Algorithm: "http://www.w3.org/2000/09/xmldsig#sha1",
+			SignatureMethod: Method{
+				Algorithm: "http://www.w3.org/2000/09/xmldsig#rsa-sha1",
+			},
+			Reference: Reference{
+				Transforms: []Method{
+					Method{Algorithm: "http://www.w3.org/2000/09/xmldsig#enveloped-signature"},
+				},
+				DigestMethod: Method{
+					Algorithm: "http://www.w3.org/2000/09/xmldsig#sha1",
+				},
 			},
 		},
 		X509Certificate: &SignatureX509Data{
