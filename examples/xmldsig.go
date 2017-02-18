@@ -6,7 +6,7 @@ import (
 	"io/ioutil"
 	"os"
 
-	"github.com/crewjam/go-xmlsec"
+	"github.com/gofly/go-xmlsec"
 )
 
 func main() {
