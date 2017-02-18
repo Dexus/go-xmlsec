@@ -26,6 +26,7 @@ type Method struct {
 //
 type Reference struct {
 	XMLName      xml.Name `xml:"http://www.w3.org/2000/09/xmldsig# Reference"`
+	URI          string   `xml:",attr"`
 	Transforms   []Method `xml:"Transforms>Transform"`
 	DigestMethod Method   `xml:"DigestMethod"`
 	DigestValue  string   `xml:"DigestValue"`
@@ -61,6 +62,7 @@ func DefaultSignature(pemEncodedPublicKey []byte) Signature {
 			Algorithm: "http://www.w3.org/2000/09/xmldsig#rsa-sha1",
 		},
 		Reference: Reference{
+			URI: "#pfxd0b69e8d-7ef1-bc79-e854-76787764d7ee",
 			Transforms: []Method{
 				Method{Algorithm: "http://www.w3.org/2000/09/xmldsig#enveloped-signature"},
 			},
